@@ -1,3 +1,4 @@
 class Category < ApplicationRecord
-  belongs_to :categorizable, polymorphic: true
+  has_many :todo_categories
+  has_many :todos, through: :todo_categories
 end
