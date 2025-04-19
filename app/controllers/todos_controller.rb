@@ -15,10 +15,6 @@ class TodosController < ApplicationController
 
   private
 
-  def current_user
-    @current_user ||= User.last
-  end
-
   def create_params
     params.require(:todo).permit(:title, :description, :due_date, category_ids: [])
   end

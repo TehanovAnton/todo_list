@@ -1,8 +1,10 @@
 require 'rails_helper'
 
 describe 'TodosControllers', type: :request do
+  include_context 'devise user login'
+
   describe 'create' do
-    let!(:user) { create(:user) }
+    let(:user) { create(:user) }
     let(:category) { create(:category) }
 
     let(:params) do
@@ -21,7 +23,6 @@ describe 'TodosControllers', type: :request do
     it 'creates a new todo and associates it with the category' do
       post '/todos', params: params
 
-      binding.pry
       expect(response).to have_http_status(:ok)
       expect(todo.title).to eq('Sample Todo')
       expect(todo.description).to eq('This is a sample description')
