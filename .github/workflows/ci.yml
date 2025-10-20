@@ -19,16 +19,26 @@ jobs:
       - name: Run RuboCop only on changed files # 3. Основная логика
         id: rubocop_check
         run: |
-          # 1. Получаем список измененных/добавленных (.rb) файлов
-          # Сравнение идет между текущим HEAD и общей точкой ветвления с 'origin/master'
-          CHANGED_FILES=$(git diff --name-only --diff-filter=AM origin/master...HEAD | grep '\.rb$' )
+          # 1. Определяем диапазон коммитов для сравнения
+          NULL_HASH="0000000000000000000000000000000000000000"
+          
+          if [ "${GITHUB_EVENT_BEFORE}" == "$NULL_HASH" ] || [ -z "${GITHUB_EVENT_BEFORE}" ]; then
+            # СЦЕНАРИЙ 1: Первый пуш в новую ветку или некорректный before. Сравниваем с HEAD~1.
+            RANGE="HEAD~1..HEAD"
+          else
+            # СЦЕНАРИЙ 2: Обычный пуш в существующую ветку.
+            RANGE="${GITHUB_EVENT_BEFORE}..HEAD"
+          fi
+
+          # 2. Получаем список измененных/добавленных (.rb) файлов
+          CHANGED_FILES=$(git diff --name-only --diff-filter=AM $RANGE | grep '\.rb$')
 
           if [ -z "$CHANGED_FILES" ]; then
             echo "Нет измененных Ruby-файлов для проверки. Проверка пропущена."
-            exit 0 # Успешное завершение, если проверять нечего
+            exit 0
           fi
           
-          echo "Проверка RuboCop для следующих файлов: $CHANGED_FILES"
+          echo "Проверка RuboCop для следующих файлов в диапазоне $RANGE: $CHANGED_FILES"
           
-          # 2. Запускаем RuboCop только для этих файлов
+          # 3. Запускаем RuboCop только для этих файлов
           bundle exec rubocop $CHANGED_FILES
