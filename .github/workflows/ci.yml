@@ -42,3 +42,8 @@ jobs:
           
           # 4. Запускаем RuboCop только для этих файлов
           bundle exec rubocop $CHANGED_FILES
+
+      - name: Run specs # 4. Основная логика
+        run: |
+          echo "Запуск тестов..."
+          bundle exec rspec
