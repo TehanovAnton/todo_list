@@ -1,0 +1,36 @@
+name: RuboCop Lint # Имя рабочего процесса
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  lint_check:
+    runs-on: ubuntu-latest # Виртуальная машина
+
+    steps:
+      - name: Checkout code # 1. Получаем код
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby # 2. Настраиваем окружение
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.6' # Замените на вашу версию Ruby
+          bundler-cache: true # Ускоряет установку Gem'ов, включая RuboCop
+
+      - name: Run RuboCop only on changed files # 3. Основная логика
+        id: rubocop_check
+        run: |
+          # 1. Получаем список измененных/добавленных (.rb) файлов
+          # Сравнение идет между текущим HEAD и общей точкой ветвления с 'origin/main'
+          CHANGED_FILES=$(git diff --name-only --diff-filter=AM origin/master...HEAD | grep '\.rb$' )
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "Нет измененных Ruby-файлов для проверки. Проверка пропущена."
+            exit 0 # Успешное завершение, если проверять нечего
+          fi
+          
+          echo "Проверка RuboCop для следующих файлов: $CHANGED_FILES"
+          
+          # 2. Запускаем RuboCop только для этих файлов
+          bundle exec rubocop $CHANGED_FILES
