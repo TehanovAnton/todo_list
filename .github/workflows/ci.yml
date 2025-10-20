@@ -1,6 +1,8 @@
 name: RuboCop Lint # Имя рабочего процесса
 on:
-  push:
+  pull_request: # Запускается при создании PR или пуше в ветку с открытым PR
+    branches:
+      - '*'
 
 jobs:
   lint_check:
@@ -9,6 +11,8 @@ jobs:
     steps:
       - name: Checkout code # 1. Получаем код
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Загружаем всю историю для сравнения с базовой веткой
 
       - name: Set up Ruby # 2. Настраиваем окружение
         uses: ruby/setup-ruby@v1
@@ -19,26 +23,22 @@ jobs:
       - name: Run RuboCop only on changed files # 3. Основная логика
         id: rubocop_check
         run: |
-          # 1. Определяем диапазон коммитов для сравнения
-          NULL_HASH="0000000000000000000000000000000000000000"
-          
-          if [ "${GITHUB_EVENT_BEFORE}" == "$NULL_HASH" ] || [ -z "${GITHUB_EVENT_BEFORE}" ]; then
-            # СЦЕНАРИЙ 1: Первый пуш в новую ветку или некорректный before. Сравниваем с HEAD~1.
-            RANGE="HEAD~1..HEAD"
-          else
-            # СЦЕНАРИЙ 2: Обычный пуш в существующую ветку.
-            RANGE="${GITHUB_EVENT_BEFORE}..HEAD"
-          fi
+          # 1. Определяем базовую ветку (ветка, в которую вливается PR)
+          BASE_BRANCH=${{ github.event.pull_request.base.ref }}
+          echo "Базовая ветка: $BASE_BRANCH"
 
-          # 2. Получаем список измененных/добавленных (.rb) файлов
-          CHANGED_FILES=$(git diff --name-only --diff-filter=AM $RANGE | grep '\.rb$')
+          # 2. Убедимся, что базовая ветка существует локально
+          git fetch origin $BASE_BRANCH:$BASE_BRANCH
+
+          # 3. Определяем измененные файлы относительно базовой ветки
+          CHANGED_FILES=$(git diff --name-only --diff-filter=AM $BASE_BRANCH | grep '\.rb$' || true)
 
           if [ -z "$CHANGED_FILES" ]; then
             echo "Нет измененных Ruby-файлов для проверки. Проверка пропущена."
             exit 0
           fi
           
-          echo "Проверка RuboCop для следующих файлов в диапазоне $RANGE: $CHANGED_FILES"
+          echo "Проверка RuboCop для следующих файлов относительно $BASE_BRANCH: $CHANGED_FILES"
           
-          # 3. Запускаем RuboCop только для этих файлов
+          # 4. Запускаем RuboCop только для этих файлов
           bundle exec rubocop $CHANGED_FILES
