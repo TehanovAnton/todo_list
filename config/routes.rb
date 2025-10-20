@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 Rails.application.routes.draw do
   devise_for :users
 
-  resources :todos, only: [:index, :show, :create]
+  resources :todos, only: %i[index show create]
 end

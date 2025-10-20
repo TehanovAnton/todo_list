@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'devise'
 require_relative 'factory_bot'
 require_relative 'shared_contexts/devise_login'

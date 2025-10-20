@@ -7,7 +7,7 @@ class CreatTodoModel < ActiveRecord::Migration[7.0]
       t.boolean :completed, default: false
       t.integer :priority
       t.references :category, foreign_key: true
-      
+
       t.timestamps
     end
   end
