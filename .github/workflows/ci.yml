@@ -1,8 +1,6 @@
 name: RuboCop Lint # Имя рабочего процесса
 on:
   push:
-    branches:
-      - master
 
 jobs:
   lint_check:
@@ -22,7 +20,7 @@ jobs:
         id: rubocop_check
         run: |
           # 1. Получаем список измененных/добавленных (.rb) файлов
-          # Сравнение идет между текущим HEAD и общей точкой ветвления с 'origin/main'
+          # Сравнение идет между текущим HEAD и общей точкой ветвления с 'origin/master'
           CHANGED_FILES=$(git diff --name-only --diff-filter=AM origin/master...HEAD | grep '\.rb$' )
 
           if [ -z "$CHANGED_FILES" ]; then
