@@ -5,7 +5,7 @@ on:
       - '*'
 
 jobs:
-  lint_check:
+  run_project:
     runs-on: ubuntu-latest # Виртуальная машина
 
     steps:
@@ -20,6 +20,7 @@ jobs:
           ruby-version: '3.3.6' # Замените на вашу версию Ruby
           bundler-cache: true # Ускоряет установку Gem'ов, включая RuboCop
 
+    steps:
       - name: Run RuboCop only on changed files # 3. Основная логика
         id: rubocop_check
         run: |
