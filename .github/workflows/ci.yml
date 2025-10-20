@@ -1,8 +1,8 @@
 name: RuboCop Lint # Имя рабочего процесса
 on:
-  push:
+  pull_request: # Запускается при создании PR или пуше в ветку с открытым PR
     branches:
-      - master
+      - '*'
 
 jobs:
   lint_check:
@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Checkout code # 1. Получаем код
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Загружаем всю историю для сравнения с базовой веткой
 
       - name: Set up Ruby # 2. Настраиваем окружение
         uses: ruby/setup-ruby@v1
@@ -21,16 +23,22 @@ jobs:
       - name: Run RuboCop only on changed files # 3. Основная логика
         id: rubocop_check
         run: |
-          # 1. Получаем список измененных/добавленных (.rb) файлов
-          # Сравнение идет между текущим HEAD и общей точкой ветвления с 'origin/main'
-          CHANGED_FILES=$(git diff --name-only --diff-filter=AM origin/master...HEAD | grep '\.rb$' )
+          # 1. Определяем базовую ветку (ветка, в которую вливается PR)
+          BASE_BRANCH=${{ github.event.pull_request.base.ref }}
+          echo "Базовая ветка: $BASE_BRANCH"
+
+          # 2. Убедимся, что базовая ветка существует локально
+          git fetch origin $BASE_BRANCH:$BASE_BRANCH
+
+          # 3. Определяем измененные файлы относительно базовой ветки
+          CHANGED_FILES=$(git diff --name-only --diff-filter=AM $BASE_BRANCH | grep '\.rb$' || true)
 
           if [ -z "$CHANGED_FILES" ]; then
             echo "Нет измененных Ruby-файлов для проверки. Проверка пропущена."
-            exit 0 # Успешное завершение, если проверять нечего
+            exit 0
           fi
           
-          echo "Проверка RuboCop для следующих файлов: $CHANGED_FILES"
+          echo "Проверка RuboCop для следующих файлов относительно $BASE_BRANCH: $CHANGED_FILES"
           
-          # 2. Запускаем RuboCop только для этих файлов
+          # 4. Запускаем RuboCop только для этих файлов
           bundle exec rubocop $CHANGED_FILES
