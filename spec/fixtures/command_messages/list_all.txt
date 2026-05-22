@@ -1,0 +1,2 @@
+# List user spreadsheets
+  /spreadsheets --list_all

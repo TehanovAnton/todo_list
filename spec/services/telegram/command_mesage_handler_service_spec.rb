@@ -18,14 +18,14 @@ describe Telegram::CommandMesageHandlerService do
     end
 
     before do
-      allow(Telegram::Commands::Spreadsheets::UpsertExpenseService).to receive(:run!).and_return(true)
+      allow(Telegram::Commands::Spreadsheets::UpsertExpenseService).to receive(:run)
+        .and_return(OpenStruct.new(result: true))
     end
 
     context 'when --show_rest_balance flag is present' do
       let(:text) { "/#{base_text} --show_rest_balance" }
 
       before do
-        allow(Telegram::Commands::Spreadsheets::UpsertExpenseService).to receive(:run!).and_return(true)
         allow(Telegram::Commands::Spreadsheets::DocumentRestBalanceService)
           .to receive(:run!)
           .with(document_id: document_id, cell: spreadsheet.rest_balance_cell)
@@ -81,8 +81,16 @@ describe Telegram::CommandMesageHandlerService do
   end
 
   describe '/spreadsheets --add command' do
+    before do
+      allow(Telegram::Commands::Spreadsheets::UpsertExpenseService).to receive(:run)
+        .and_return(OpenStruct.new(result: true))
+    end
+
     describe 'success cases' do
-      let(:text) { '/spreadsheets --add --document_id="new-doc" --expense_range="Sheet1!A1:B1"' }
+      let(:rest_balance) { 'Лист1!M7' }
+      let(:text) do
+        '/spreadsheets --add --document_id="new-doc" --expense_range="Sheet1!A1:B1" --rest_balance_cell="Лист1!M7"'
+      end
       let(:new_spreadsheet) { user.spreadsheets.last }
 
       it do

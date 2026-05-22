@@ -50,7 +50,7 @@ module Telegram
         end
 
         def upsert_expense
-          upsert_expense_service.run!(spreadsheet: spreadsheet, expense: expense_data)
+          upsert_expense_service.run(spreadsheet: spreadsheet, expense: expense_data).result
         end
 
         def view

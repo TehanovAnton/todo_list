@@ -15,9 +15,9 @@ scrape_configs:
     scheme: http
     static_configs:
       - targets:
-          # host.docker.internal резолвится в IP хост-машины изнутри Docker-контейнера.
-          # Нужно потому что Rails запущен локально, а Prometheus — в контейнере.
-          - 'host.docker.internal:3000'
+          # bot — имя сервиса в docker-compose.metrics.yml.
+          # Внутри Docker-сети контейнеры обращаются друг к другу по имени сервиса.
+          - 'bot:3000'
 
   # Pushgateway — метрики rake-таски бота (interaction_calls, interaction_duration и т.д.)
   # Бот сам пушит метрики после каждого сообщения, Prometheus забирает их отсюда.

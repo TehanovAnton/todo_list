@@ -30,15 +30,12 @@ module Telegram
     end
 
     def add_command
-      interaction = Commands::Spreadsheets::AddService.run(
+      Commands::Spreadsheets::AddService.run!(
         user: user,
         document_id: command_params.document_id,
-        expense_range: command_params.expense_range
+        expense_range: command_params.expense_range,
+        rest_balance_cell: command_params.rest_balance_cell
       )
-
-      return Commands::Spreadsheets::Add::RenderService.run!(view: :fail) unless interaction.valid?
-
-      interaction.result
     end
 
     def delete_command

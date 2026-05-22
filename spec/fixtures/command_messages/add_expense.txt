@@ -1,12 +1,28 @@
-/spreadsheets —add_expense
-  —document_id="1Pdq3bemOwovZLiFDWoNfb6XO0HJt9RHz8LpwZBjeXJs"
-  —date="06.05.2026"
-  —amount="100"
-  —category="Продукты"
+# Add expense
+  /spreadsheets —add_expense
+    —document_id="1Pdq3bemOwovZLiFDWoNfb6XO0HJt9RHz8LpwZBjeXJs"
+    —date="06.05.2026"
+    —amount="100"
+    —category="Продукты"
 
-/spreadsheets —add_expense
-  --show_rest_balance
-  —document_id="1Pdq3bemOwovZLiFDWoNfb6XO0HJt9RHz8LpwZBjeXJs"
-  —date="06.05.2026"
-  —amount="100"
-  —category="Продукты"
+# With rest balance com
+  /spreadsheets —add_expense
+    --show_rest_balance
+    —document_id="13PVevQPgWe0HMt3DzV2ii5q4o1y2YQHHjen26PSVY-4"
+    —date="06.05.2026"
+    —amount="100"
+    —category="Продукты"
+
+  # Curl variant
+    curl -X POST http://localhost:3000/telegram/webhook \
+    -H "Content-Type: application/json" \
+    -d '{
+      "message": {
+        "message_id": 2,
+        "text": "/spreadsheets --add_expense --show_rest_balance --document_id=\"13PVevQPgWe0HMt3DzV2ii5q4o1y2YQHHjen26PSVY-4\" --date=\"06.05.2026\" --amount=\"100\" --category=\"Продукты\"",
+        "from": { "id": 111, "username": "test_user", "is_bot": false },
+        "chat": { "id": 111, "type": "private" },
+        "date": 1700000000
+      }
+    }'
+

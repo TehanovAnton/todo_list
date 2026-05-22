@@ -22,12 +22,14 @@ namespace :money_tracker do
       rescue StandardError => e
         ErrorLogger.log(e, context: { message_id: message&.message_id, username: message&.from&.username })
       ensure
-        # Пушим метрики после каждого сообщения независимо от результата.
-        # Prometheus::Client.registry содержит все метрики зарегистрированные через yabeda.
-        Prometheus::Client::Push.new(
-          job: 'money_tracker_bot',
-          gateway: Settings.app.metrics.pushgateway_url
-        ).add(Prometheus::Client.registry)
+        begin
+          Prometheus::Client::Push.new(
+            job: 'money_tracker_bot',
+            gateway: Settings.app.metrics.pushgateway_url
+          ).add(Prometheus::Client.registry)
+        rescue StandardError => _e
+          nil
+        end
       end
     end
   end
