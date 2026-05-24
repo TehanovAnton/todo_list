@@ -26,6 +26,31 @@ describe Telegram::Commands::Spreadsheets::AddService do
     end
   end
 
+  describe 'alias' do
+    subject(:result) do
+      described_class.run(
+        user: user,
+        document_id: document_id,
+        expense_range: expense_range,
+        rest_balance_cell: rest_balance_cell,
+        alias: alias_value
+      ).result
+    end
+
+    let(:alias_value) { 'Бюджет' }
+
+    context 'when alias is provided' do
+      it 'creates spreadsheet with alias' do
+        expect { result }.to change(Spreadsheet, :count).by(1)
+        expect(Spreadsheet.last.alias).to eq(alias_value)
+      end
+
+      it 'renders success view' do
+        expect(result).to eq('Таблица создана')
+      end
+    end
+  end
+
   describe 'fail cases' do
     context 'when document_id is blank' do
       subject(:interaction) { described_class.run(user: user, document_id: '', expense_range: expense_range) }

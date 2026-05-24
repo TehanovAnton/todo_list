@@ -8,6 +8,7 @@ module Telegram
         string :document_id
         string :expense_range
         string :rest_balance_cell
+        string :alias, default: nil
 
         def execute
           errors.add(:document_id, 'Must to be present') if document_id.blank?
@@ -26,7 +27,11 @@ module Telegram
 
         def spreadsheet
           @spreadsheet ||= Spreadsheet.create(
-            user: user, document_id: document_id, expense_range: expense_range, rest_balance_cell: rest_balance_cell
+            user: user,
+            document_id: document_id,
+            expense_range: expense_range,
+            rest_balance_cell: rest_balance_cell,
+            alias: self.alias
           )
         end
 

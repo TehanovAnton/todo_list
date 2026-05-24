@@ -4,6 +4,13 @@
     —date="06.05.2026"
     —amount="100"
     —category="Продукты"
+  
+  # With choose spreadsheet by alias
+    /spreadsheets —add_expense
+      —alias="тест-2"
+      —date="06.05.2026"
+      —amount="100"
+      —category="Продукты"
 
 # With rest balance com
   /spreadsheets —add_expense

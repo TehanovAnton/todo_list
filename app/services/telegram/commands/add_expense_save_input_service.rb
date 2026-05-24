@@ -4,7 +4,8 @@ module Telegram
   module Commands
     class AddExpenseSaveInputService < ApplicationInteraction
       record :user
-      string :document_id
+      string :document_id, default: nil
+      string :alias_name, default: nil
       object :expense_data, class: Spreadsheets::ExpenseType
 
       def execute
@@ -21,6 +22,7 @@ module Telegram
 
       def build_attrs
         {
+          alias: alias_name,
           document_id: document_id,
           date: expense_data.date,
           amount: expense_data.amount,
