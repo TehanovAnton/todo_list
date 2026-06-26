@@ -1,0 +1,112 @@
+# Describe: add expense
+  /spreadsheets --add
+    --document_id="13PVevQPgWe0HMt3DzV2ii5q4o1y2YQHHjen26PSVY-4"
+    --expense_range="Лист1!G29:J110"
+    --rest_balance_cell="Лист1!M7"
+
+  # Context: with show rest balance
+    /spreadsheets —add_expense
+      --show_rest_balance
+      —document_id="13PVevQPgWe0HMt3DzV2ii5q4o1y2YQHHjen26PSVY-4"
+      —date="06.05.2026"
+      —amount="100"
+      —category="Продукты"
+
+  # Context: without show rest balance
+    /spreadsheets —add_expense
+      —document_id="13PVevQPgWe0HMt3DzV2ii5q4o1y2YQHHjen26PSVY-4"
+      —date="06.05.2026"
+      —amount="100"
+      —category="Продукты"
+
+  /spreadsheets —list_all
+
+  # Describe: saved inputs
+    /spreadsheets —add_expense
+      --show_rest_balance
+      —document_id="13PVevQPgWe0HMt3DzV2ii5q4o1y2YQHHjen26PSVY-4"
+      —date="06.05.2026"
+      —amount="100"
+      —category="Продукты"
+
+    /spreadsheets —add_expense
+      —amount="10"
+
+# Curl variant
+  # Describe: add expense
+    # 1. Add spreadsheet
+      curl -s -X POST http://localhost:3000/telegram/webhook \
+        -H "Content-Type: application/json" \
+        -d '{
+          "message": {
+            "message_id": 1,
+            "text": "/spreadsheets --add --alias=\"тест-2\" --expense_range=\"Лист1!G29:J110\" --rest_balance_cell=\"Лист1!M7\"",
+            "from": { "id": 111, "username": "test_user", "is_bot": false },
+            "chat": { "id": 111, "type": "private" },
+            "date": 1700000000
+          }
+        }'
+
+    # Context: with show rest balance
+        curl -s -X POST http://localhost:3000/telegram/webhook \
+          -H "Content-Type: application/json" \
+          -d '{
+            "message": {
+              "message_id": 2,
+              "text": "/spreadsheets --add_expense --show_rest_balance --document_id=\"13PVevQPgWe0HMt3DzV2ii5q4o1y2YQHHjen26PSVY-4\" --date=\"06.05.2026\" --amount=\"100\" --category=\"Продукты\"",
+              "from": { "id": 111, "username": "test_user", "is_bot": false },
+              "chat": { "id": 111, "type": "private" },
+              "date": 1700000001
+            }
+          }'
+
+    # Context: without show rest balance
+      curl -s -X POST http://localhost:3000/telegram/webhook \
+        -H "Content-Type: application/json" \
+        -d '{
+          "message": {
+            "message_id": 3,
+            "text": "/spreadsheets --add_expense --alias=\"тест-2\" --date=\"06.05.2026\" --amount=\"100\" --category=\"Продукты\"",
+            "from": { "id": 111, "username": "test_user", "is_bot": false },
+            "chat": { "id": 111, "type": "private" },
+            "date": 1700000002
+          }
+        }'
+
+    # 4. List all
+      curl -s -X POST http://localhost:3000/telegram/webhook \
+        -H "Content-Type: application/json" \
+        -d '{
+          "message": {
+            "message_id": 4,
+            "text": "/spreadsheets --list_all",
+            "from": { "id": 111, "username": "test_user", "is_bot": false },
+            "chat": { "id": 111, "type": "private" },
+            "date": 1700000003
+          }
+        }'
+
+    # Describe: saved inputs
+      curl -s -X POST http://localhost:3000/telegram/webhook \
+        -H "Content-Type: application/json" \
+        -d '{
+          "message": {
+            "message_id": 5,
+            "text": "/spreadsheets --add_expense --show_rest_balance --document_id=\"13PVevQPgWe0HMt3DzV2ii5q4o1y2YQHHjen26PSVY-4\" --date=\"06.05.2026\" --amount=\"100\" --category=\"Продукты\"",
+            "from": { "id": 111, "username": "test_user", "is_bot": false },
+            "chat": { "id": 111, "type": "private" },
+            "date": 1700000004
+          }
+        }'
+
+      curl -s -X POST http://localhost:3000/telegram/webhook \
+        -H "Content-Type: application/json" \
+        -d '{
+          "message": {
+            "message_id": 6,
+            "text": "/spreadsheets --add_expense --amount=\"10\"",
+            "from": { "id": 111, "username": "test_user", "is_bot": false },
+            "chat": { "id": 111, "type": "private" },
+            "date": 1700000005
+          }
+        }'

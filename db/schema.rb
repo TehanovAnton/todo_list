@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_05_18_190204) do
+ActiveRecord::Schema[7.0].define(version: 2026_05_22_132336) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -22,6 +22,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_05_18_190204) do
     t.text "comment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "alias"
   end
 
   create_table "command_settings", force: :cascade do |t|
@@ -64,6 +65,8 @@ ActiveRecord::Schema[7.0].define(version: 2026_05_18_190204) do
     t.datetime "updated_at", null: false
     t.string "expense_range"
     t.string "rest_balance_cell"
+    t.string "alias"
+    t.index ["alias", "user_id"], name: "index_spreadsheets_on_alias_and_user_id", unique: true
     t.index ["document_id"], name: "index_spreadsheets_on_document_id", unique: true
   end
 

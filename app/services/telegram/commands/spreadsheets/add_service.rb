@@ -7,32 +7,40 @@ module Telegram
         record :user
         string :document_id
         string :expense_range
-
-        validate :check_document_id
-        validate :check_expense_range
+        string :rest_balance_cell
+        string :alias, default: nil
 
         def execute
-          return render_view(:invalid_record, spreadsheet: spreadsheet) unless spreadsheet.valid?
+          errors.add(:document_id, 'Must to be present') if document_id.blank?
+          errors.add(:expense_range, 'Must to be present') if expense_range.blank?
 
-          render_view(:success, spreadsheet: spreadsheet)
+          create_spreadsheet if errors.empty?
+
+          render_view(view, spreadsheet: spreadsheet)
         end
 
         private
 
-        def check_document_id
-          return if document_id.present?
-
-          errors.add(:document_id, 'Must ti be present')
-        end
-
-        def check_expense_range
-          return if expense_range.present?
-
-          errors.add(:expense_range, 'Must ti be present')
+        def create_spreadsheet
+          errors.add(:invalid_record, 'Could not create spreadsheet') unless spreadsheet.valid?
         end
 
         def spreadsheet
-          @spreadsheet ||= Spreadsheet.create(user: user, document_id: document_id, expense_range: expense_range)
+          @spreadsheet ||= Spreadsheet.create(
+            user: user,
+            document_id: document_id,
+            expense_range: expense_range,
+            rest_balance_cell: rest_balance_cell,
+            alias: self.alias
+          )
+        end
+
+        def view
+          @view = begin
+            return :invalid_record if errors[:invalid_record].present?
+
+            :success
+          end
         end
 
         def template(view)

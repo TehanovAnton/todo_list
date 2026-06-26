@@ -1,0 +1,15 @@
+# List user spreadsheets
+  /spreadsheets --list_all
+
+# Curl variant
+  curl -X POST http://localhost:3000/telegram/webhook \
+    -H "Content-Type: application/json" \
+    -d '{
+      "message": {
+        "message_id": 1,
+        "text": "/spreadsheets --list_all",
+        "from": { "id": 111, "username": "test_user", "is_bot": false },
+        "chat": { "id": 111, "type": "private" },
+        "date": 1700000000
+      }
+    }'

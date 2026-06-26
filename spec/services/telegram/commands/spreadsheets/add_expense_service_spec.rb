@@ -23,7 +23,8 @@ describe Telegram::Commands::Spreadsheets::AddExpenseService do
   let(:show_rest_balance) { false }
 
   before do
-    allow(Telegram::Commands::Spreadsheets::UpsertExpenseService).to receive(:run!).and_return(true)
+    allow(Telegram::Commands::Spreadsheets::UpsertExpenseService).to receive(:run)
+      .and_return(OpenStruct.new(result: true))
   end
 
   shared_examples 'render view' do |args|

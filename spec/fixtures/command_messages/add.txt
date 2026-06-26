@@ -1,0 +1,18 @@
+# Add spreadsheet
+  /spreadsheets --add
+    --document_id="13PVevQPgWe0HMt3DzV2ii5q4o1y2YQHHjen26PSVY-4"
+    --expense_range="Лист1!G29:J110"
+    --rest_balance_cell="Лист1!M7"
+
+# Curl variant
+  curl -X POST http://localhost:3000/telegram/webhook \
+    -H "Content-Type: application/json" \
+    -d '{
+      "message": {
+        "message_id": 1,
+        "text": "/spreadsheets --add --document_id=\"13PVevQPgWe0HMt3DzV2ii5q4o1y2YQHHjen26PSVY-4\" --expense_range=\"Лист1!G29:J110\" --rest_balance_cell=\"Лист1!M7\"",
+        "from": { "id": 111, "username": "test_user", "is_bot": false },
+        "chat": { "id": 111, "type": "private" },
+        "date": 1700000000
+      }
+    }'

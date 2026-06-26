@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Telegram
-  class CommandMesageHandlerService < ApplicationInteraction
+  class CommandMessageHandlerService < ApplicationInteraction
     record :user
     string :message_text
 
@@ -21,7 +21,8 @@ module Telegram
         add: method(:add_command),
         delete: method(:delete_command),
         add_expense: method(:add_expense_command),
-        rest_balance: method(:rest_balance_command)
+        rest_balance: method(:rest_balance_command),
+        set_alias: method(:set_alias_command)
       }
     end
 
@@ -30,15 +31,15 @@ module Telegram
     end
 
     def add_command
-      interaction = Commands::Spreadsheets::AddService.run(
+      ApplicationLogger.log(message: 'Add Command')
+
+      Commands::Spreadsheets::AddService.run!(
         user: user,
         document_id: command_params.document_id,
-        expense_range: command_params.expense_range
+        expense_range: command_params.expense_range,
+        rest_balance_cell: command_params.rest_balance_cell,
+        alias: command_params.alias
       )
-
-      return Commands::Spreadsheets::Add::RenderService.run!(view: :fail) unless interaction.valid?
-
-      interaction.result
     end
 
     def delete_command
@@ -48,12 +49,20 @@ module Telegram
     end
 
     def add_expense_command
-      command_setting = user.add_expense_command_setting || AddExpenseCommandSetting.create!(user: user)
-      command_setting.savable_input || AddExpenseSavedInput.create(command_setting: command_setting)
+      ApplicationLogger.log(message: 'Add Expense Command')
+
+      document_id = command_params.document_id
+      alias_name = command_params.alias
+
+      unless document_id || alias_name
+        document_id = saved_input.document_id
+        alias_name = saved_input.alias
+      end
 
       Commands::Spreadsheets::AddExpenseService.run!(
         user: user,
-        document_id: command_params.document_id || saved_input.document_id,
+        document_id: document_id,
+        alias_name: alias_name,
         show_rest_balance: command_params.show_rest_balance,
         expense_data: Commands::Spreadsheets::ExpenseType.new(
           date: command_params.date || saved_input.date,
@@ -61,6 +70,16 @@ module Telegram
           category: command_params.category || saved_input.category,
           comment: command_params.comment || saved_input.comment
         )
+      )
+    end
+
+    def set_alias_command
+      ApplicationLogger.log(message: 'Set Alias Command')
+
+      Commands::Spreadsheets::SetAliasService.run!(
+        user: user,
+        document_id: command_params.document_id,
+        alias: command_params.alias
       )
     end
 
@@ -78,6 +97,9 @@ module Telegram
     end
 
     def add_expense_saved_input
+      command_setting = user.add_expense_command_setting || AddExpenseCommandSetting.create!(user: user)
+      command_setting.savable_input || AddExpenseSavedInput.create(command_setting: command_setting)
+
       user.add_expense_saved_input
     end
 

@@ -4,21 +4,48 @@ require 'rails_helper'
 
 describe Telegram::Commands::Spreadsheets::AddService do
   subject(:result) do
-    described_class.run!(
+    described_class.run(
       user: user,
       document_id: document_id,
-      expense_range: expense_range
-    )
+      expense_range: expense_range,
+      rest_balance_cell: rest_balance_cell
+    ).result
   end
 
   let(:user) { FactoryBot.create(:user) }
   let(:document_id) { 'doc-1' }
   let(:expense_range) { 'Sheet1!A1:B1' }
+  let(:rest_balance_cell) { 'Лист1!M7' }
 
   describe 'success cases' do
     context 'when record is created' do
       it 'renders success view' do
         expect { result }.to change(Spreadsheet, :count).by(1)
+        expect(result).to eq('Таблица создана')
+      end
+    end
+  end
+
+  describe 'alias' do
+    subject(:result) do
+      described_class.run(
+        user: user,
+        document_id: document_id,
+        expense_range: expense_range,
+        rest_balance_cell: rest_balance_cell,
+        alias: alias_value
+      ).result
+    end
+
+    let(:alias_value) { 'Бюджет' }
+
+    context 'when alias is provided' do
+      it 'creates spreadsheet with alias' do
+        expect { result }.to change(Spreadsheet, :count).by(1)
+        expect(Spreadsheet.last.alias).to eq(alias_value)
+      end
+
+      it 'renders success view' do
         expect(result).to eq('Таблица создана')
       end
     end

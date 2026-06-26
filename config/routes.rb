@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  resources :todos, only: %i[index show create]
+
+  namespace :telegram do
+    resource :webhook, only: [:create]
+  end
 
   # Эндпоинт для Prometheus — он сам ходит сюда каждые N секунд и забирает метрики (pull-модель).
   # Yabeda::Prometheus::Exporter — это Rack-приложение, смонтированное как обычный маршрут.

@@ -7,12 +7,14 @@ module Telegram
         attr_reader :expense
 
         record :user
-        string :document_id
+        string :document_id, default: nil
+        string :alias_name, default: nil
         boolean :show_rest_balance, default: false
         object :expense_data, class: ExpenseType
-        object :upsert_expense_service, default: UpsertExpenseService, class: UpsertExpenseService.class.name
+        object :upsert_expense_service, class: 'Class', default: UpsertExpenseService
         object :document_rest_balance_service, class: 'Class', default: DocumentRestBalanceService
         object :save_input_service, class: 'Class', default: AddExpenseSaveInputService
+        object :define_spreadsheet_service, class: 'Class', default: DefineSpreadsheets::AddExpenseService
 
         def execute
           errors.add(:could_not_find_spreadsheet, 'No Spreadsheet') unless spreadsheet
@@ -50,7 +52,7 @@ module Telegram
         end
 
         def upsert_expense
-          upsert_expense_service.run!(spreadsheet: spreadsheet, expense: expense_data)
+          upsert_expense_service.run(spreadsheet: spreadsheet, expense: expense_data).result
         end
 
         def view
@@ -67,7 +69,11 @@ module Telegram
         end
 
         def spreadsheet
-          @spreadsheet ||= Spreadsheet.find_by(document_id: document_id, user_id: user.id)
+          @spreadsheet ||= define_spreadsheet_service.run(
+            user: user,
+            document_id: document_id,
+            alias_name: alias_name
+          ).result
         end
 
         def template(view)
