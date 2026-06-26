@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Telegram
-  class CommandMesageHandlerService < ApplicationInteraction
+  class CommandMessageHandlerService < ApplicationInteraction
     record :user
     string :message_text
 
@@ -31,6 +31,8 @@ module Telegram
     end
 
     def add_command
+      ApplicationLogger.log(message: 'Add Command')
+
       Commands::Spreadsheets::AddService.run!(
         user: user,
         document_id: command_params.document_id,
@@ -47,10 +49,20 @@ module Telegram
     end
 
     def add_expense_command
+      ApplicationLogger.log(message: 'Add Expense Command')
+
+      document_id = command_params.document_id
+      alias_name = command_params.alias
+
+      unless document_id || alias_name
+        document_id = saved_input.document_id
+        alias_name = saved_input.alias
+      end
+
       Commands::Spreadsheets::AddExpenseService.run!(
         user: user,
-        document_id: command_params.document_id || saved_input.document_id,
-        alias_name: command_params.alias || saved_input.alias,
+        document_id: document_id,
+        alias_name: alias_name,
         show_rest_balance: command_params.show_rest_balance,
         expense_data: Commands::Spreadsheets::ExpenseType.new(
           date: command_params.date || saved_input.date,
@@ -62,6 +74,8 @@ module Telegram
     end
 
     def set_alias_command
+      ApplicationLogger.log(message: 'Set Alias Command')
+
       Commands::Spreadsheets::SetAliasService.run!(
         user: user,
         document_id: command_params.document_id,

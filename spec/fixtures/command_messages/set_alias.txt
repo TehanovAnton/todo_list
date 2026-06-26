@@ -1,5 +1,7 @@
-# List user spreadsheets
-  /spreadsheets --list_all
+# Set alias for spreadsheet
+  /spreadsheets --set_alias
+    --document_id="13PVevQPgWe0HMt3DzV2ii5q4o1y2YQHHjen26PSVY-4"
+    --alias="main"
 
 # Curl variant
   curl -X POST http://localhost:3000/telegram/webhook \
@@ -7,7 +9,7 @@
     -d '{
       "message": {
         "message_id": 1,
-        "text": "/spreadsheets --list_all",
+        "text": "/spreadsheets --set_alias --document_id=\"13PVevQPgWe0HMt3DzV2ii5q4o1y2YQHHjen26PSVY-4\" --alias=\"тест-2\"",
         "from": { "id": 111, "username": "test_user", "is_bot": false },
         "chat": { "id": 111, "type": "private" },
         "date": 1700000000

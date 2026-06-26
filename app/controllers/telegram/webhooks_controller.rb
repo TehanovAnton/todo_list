@@ -10,7 +10,7 @@ module Telegram
       msg    = update['message']
 
       user   = User.find_or_create_by(telegram_username: msg.dig('from', 'username'))
-      output = Telegram::CommandMesageHandlerService.run!(user: user, message_text: msg['text'])
+      output = Telegram::CommandMessageHandlerService.run!(user: user, message_text: msg['text'])
 
       render json: { ok: true, text: output }, status: :ok
     rescue StandardError => e

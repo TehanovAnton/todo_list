@@ -1,19 +1,16 @@
 filebeat.inputs:
+  # path - путь внутри контейнера (смотрит в ./log на хосте)
   - type: log
     enabled: true
     paths:
-      - /app/log/sql.log  # путь внутри контейнера (смотрит в ./log на хосте)
-
-    # Каждая строка файла — самостоятельный JSON-документ
+      - /app/log/sql.log
     json.keys_under_root: true   # поля JSON кладутся в корень документа, не в поле "json"
     json.overwrite_keys: true    # если Filebeat и JSON содержат одно поле — побеждает JSON
     json.add_error_key: true     # при ошибке парсинга добавляется поле "error.message"
-
-    # Поле для определения времени события — берём из нашего "timestamp"
-    json.message_key: timestamp
-
-    # Если строка не является JSON (например, стек трейс) — не ломаемся, просто пропускаем
-    ignore_older: 24h
+    json.message_key: timestamp  # Поле для определения времени события — берём из нашего "timestamp"
+    ignore_older: 24h            # Если строка не является JSON (например, стек трейс) — не ломаемся, просто пропускаем
+    fields:
+      log_type: sql
 
   - type: log
     enabled: true
@@ -38,6 +35,18 @@ filebeat.inputs:
     ignore_older: 24h
     fields:
       log_type: error
+
+  - type: log
+    enabled: true
+    paths:
+      - /app/log/application.log
+    json.keys_under_root: true
+    json.overwrite_keys: true
+    json.add_error_key: true
+    json.message_key: timestamp
+    ignore_older: 24h
+    fields:
+      log_type: application
 
 # Добавляем мета-поле, чтобы в Kibana можно было отличить источник
 processors:

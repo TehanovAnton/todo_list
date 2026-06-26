@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Telegram::CommandMesageHandlerService do
+describe Telegram::CommandMessageHandlerService do
   subject(:result) { described_class.run!(user: user, message_text: text) }
 
   let(:user) { FactoryBot.create(:user) }

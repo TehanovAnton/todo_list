@@ -58,7 +58,6 @@ services:
     environment:
       <<: *bot_env
     volumes:
-      # Логи пишутся ботом сюда, Filebeat читает из этого же volume
       - bot_logs:/app/log
     depends_on:
       migrate:
@@ -149,7 +148,6 @@ services:
     user: root
     volumes:
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      # Читаем логи из того же volume что и бот
       - bot_logs:/app/log:ro
       - filebeat_registry:/usr/share/filebeat/data
     depends_on:
@@ -158,6 +156,21 @@ services:
       bot:
         condition: service_healthy
     command: filebeat -e --strict.perms=false
+
+  # ── Нагрузочное тестирование ───────────────────────────────────────────────
+
+  k6:
+    image: grafana/k6:latest
+    profiles:
+      - load-test
+    volumes:
+      - ./load-test:/scripts:ro
+    environment:
+      - BOT_URL=http://bot:3000
+    depends_on:
+      bot:
+        condition: service_healthy
+    command: run /scripts/scenario.js
 
 volumes:
   postgres_data:
