@@ -45,6 +45,7 @@
 .notes/*
 .claude/*
 .agents/skills/rspecexpert/SKILL.md
+.vscode/**/*
 
 AGENTS.md
 
